@@ -4,7 +4,8 @@ const dotenv = require('dotenv');
 const path = require('path');
 const db = require('./database/database');
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
