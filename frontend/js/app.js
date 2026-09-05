@@ -96,7 +96,28 @@ const api = {
             body: JSON.stringify({ email, password })
         });
         const data = await res.json();
-        if (res.ok) {
+        if (res.ok && data.token) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+        }
+        return data;
+    },
+    loginRequest: async (email, password) => {
+        const res = await fetch(`${API_URL}/auth/login-request`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        return res.json();
+    },
+    loginVerify: async (email, otp) => {
+        const res = await fetch(`${API_URL}/auth/login-verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, otp })
+        });
+        const data = await res.json();
+        if (res.ok && data.token) {
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
         }
@@ -107,6 +128,35 @@ const api = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData)
+        });
+        return res.json();
+    },
+    registerRequest: async (userData) => {
+        const res = await fetch(`${API_URL}/auth/register-request`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        });
+        return res.json();
+    },
+    registerVerify: async (verifyPayload) => {
+        const res = await fetch(`${API_URL}/auth/register-verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(verifyPayload)
+        });
+        const data = await res.json();
+        if (res.ok && data.token) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+        }
+        return data;
+    },
+    resendOtp: async (email, purpose = 'login') => {
+        const res = await fetch(`${API_URL}/auth/resend-otp`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, purpose })
         });
         return res.json();
     },
@@ -130,6 +180,136 @@ const api = {
         showToast(data.message);
     }
 };
+
+// ==========================================
+// OTP INPUT GRID HELPERS & UTILITIES
+// ==========================================
+
+let resendTimerInterval = null;
+
+const startResendTimer = (seconds = 60) => {
+    stopResendTimer();
+    let remaining = seconds;
+
+    const timerTextContainer = document.getElementById('resendTimerText');
+    const timerCountEl = document.getElementById('timerCount');
+    const resendBtn = document.getElementById('btnResendOtp');
+
+    if (timerTextContainer) timerTextContainer.style.display = 'inline';
+    if (resendBtn) resendBtn.style.display = 'none';
+    if (timerCountEl) timerCountEl.textContent = remaining;
+
+    resendTimerInterval = setInterval(() => {
+        remaining--;
+        if (timerCountEl) timerCountEl.textContent = remaining;
+
+        if (remaining <= 0) {
+            stopResendTimer();
+            if (timerTextContainer) timerTextContainer.style.display = 'none';
+            if (resendBtn) resendBtn.style.display = 'inline-block';
+        }
+    }, 1000);
+};
+
+const stopResendTimer = () => {
+    if (resendTimerInterval) {
+        clearInterval(resendTimerInterval);
+        resendTimerInterval = null;
+    }
+};
+
+const setupOtpInputGrid = (gridId, onComplete) => {
+    const container = document.getElementById(gridId);
+    if (!container) return;
+
+    const inputs = container.querySelectorAll('.otp-box');
+
+    inputs.forEach((input, index) => {
+        // Prevent duplicate listeners
+        const newInput = input.cloneNode(true);
+        input.parentNode.replaceChild(newInput, input);
+    });
+
+    const refreshedInputs = container.querySelectorAll('.otp-box');
+
+    refreshedInputs.forEach((input, index) => {
+        // Focus first box
+        if (index === 0) {
+            setTimeout(() => input.focus(), 100);
+        }
+
+        // Input event (digit typed or pasted)
+        newInputHandler(input, index, refreshedInputs, gridId, onComplete);
+    });
+};
+
+const newInputHandler = (input, index, inputs, gridId, onComplete) => {
+    input.addEventListener('input', (e) => {
+        const val = input.value;
+        if (val) {
+            input.classList.add('filled');
+            if (index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+            if (onComplete && getOtpValue(gridId).length === 6) {
+                onComplete();
+            }
+        } else {
+            input.classList.remove('filled');
+        }
+    });
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !input.value && index > 0) {
+            inputs[index - 1].focus();
+            inputs[index - 1].value = '';
+            inputs[index - 1].classList.remove('filled');
+        }
+    });
+
+    input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pastedData = (e.clipboardData || window.clipboardData).getData('text').trim();
+        const digits = pastedData.replace(/\D/g, '').slice(0, 6);
+
+        if (digits.length > 0) {
+            digits.split('').forEach((char, i) => {
+                if (inputs[i]) {
+                    inputs[i].value = char;
+                    inputs[i].classList.add('filled');
+                }
+            });
+
+            const nextIndex = Math.min(digits.length, inputs.length - 1);
+            inputs[nextIndex].focus();
+
+            if (digits.length === 6 && onComplete) {
+                onComplete();
+            }
+        }
+    });
+};
+
+const getOtpValue = (gridId) => {
+    const container = document.getElementById(gridId);
+    if (!container) return '';
+    const inputs = container.querySelectorAll('.otp-box');
+    let code = '';
+    inputs.forEach(input => code += input.value.trim());
+    return code;
+};
+
+const clearOtpGrid = (gridId) => {
+    const container = document.getElementById(gridId);
+    if (!container) return;
+    const inputs = container.querySelectorAll('.otp-box');
+    inputs.forEach(input => {
+        input.value = '';
+        input.classList.remove('filled');
+    });
+    if (inputs[0]) inputs[0].focus();
+};
+
 
 // Rent Modal Logic
 const openRentModal = (gameId, basePrice, title) => {
@@ -262,6 +442,12 @@ window.closeRentModal = closeRentModal;
 window.selectRentOption = selectRentOption;
 window.confirmRent = confirmRent;
 window.openLaunchModal = openLaunchModal; // play animation function
+window.setupOtpInputGrid = setupOtpInputGrid;
+window.getOtpValue = getOtpValue;
+window.clearOtpGrid = clearOtpGrid;
+window.startResendTimer = startResendTimer;
+window.stopResendTimer = stopResendTimer;
 window.api = api; // api is global for inline onclicks
 
 document.addEventListener('DOMContentLoaded', updateNavbar);
+

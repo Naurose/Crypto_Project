@@ -30,6 +30,9 @@ app.use('/api/user', require('./routes/users'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/news', require('./routes/news'));
 
+// Serve Frontend Static Files (HTML, CSS, JS)
+app.use(express.static(path.join(__dirname, '../frontend')));
+
 // Serve Uploaded Images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

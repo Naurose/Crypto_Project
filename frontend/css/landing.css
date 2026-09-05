@@ -859,3 +859,109 @@ input:checked + .slider:before {
     white-space: nowrap;
     color: #ff9800; /* Filled star color */
 }
+
+/* --- Modern OTP UI Component Styles --- */
+.otp-container {
+    text-align: center;
+    padding: 0.5rem 0;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.otp-email-badge {
+    display: inline-block;
+    background: rgba(99, 102, 241, 0.15);
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    color: var(--primary);
+    padding: 0.4rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.otp-inputs {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    margin: 1.5rem 0;
+}
+
+.otp-box {
+    width: 46px !important;
+    height: 54px !important;
+    text-align: center !important;
+    font-size: 1.5rem !important;
+    font-weight: 800 !important;
+    color: #fff !important;
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 2px solid var(--glass-border) !important;
+    border-radius: 12px !important;
+    transition: all 0.25s ease !important;
+    padding: 0 !important;
+}
+
+.otp-box:focus {
+    outline: none !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 15px rgba(0, 242, 234, 0.35) !important;
+    transform: translateY(-2px);
+}
+
+.otp-box.filled {
+    border-color: rgba(99, 102, 241, 0.7) !important;
+    background: rgba(99, 102, 241, 0.1) !important;
+}
+
+.otp-timer-container {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: #888;
+}
+
+.otp-timer {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.btn-resend {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 0.9rem;
+    transition: opacity 0.3s;
+}
+
+.btn-resend:disabled {
+    color: #666;
+    cursor: not-allowed;
+    text-decoration: none;
+    opacity: 0.6;
+}
+
+.otp-info-msg {
+    color: #aaa;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+.otp-back-link {
+    display: inline-block;
+    margin-top: 1rem;
+    color: #888;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.otp-back-link:hover {
+    color: #fff;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

@@ -29,6 +29,17 @@ const initSchema = () => {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
 
+        CREATE TABLE IF NOT EXISTS otps (
+            otp_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT NOT NULL,
+            otp_hash TEXT NOT NULL,
+            purpose TEXT NOT NULL CHECK(purpose IN ('login', 'register')),
+            expires_at DATETIME NOT NULL,
+            attempts INTEGER DEFAULT 0,
+            is_verified INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
         CREATE TABLE IF NOT EXISTS games (
             game_id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
