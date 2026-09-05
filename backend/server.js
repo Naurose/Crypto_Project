@@ -1,0 +1,40 @@
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const path = require('path');
+const db = require('./database/database');
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// SQLite Database Status
+console.log('Connected to SQLite database (gamevault.db)');
+
+// Basic Route
+app.get('/', (req, res) => {
+    res.send('GameVault API is running...');
+});
+
+// Routes
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/games', require('./routes/games'));
+app.use('/api/cart', require('./routes/cart'));
+app.use('/api/orders', require('./routes/orders'));
+app.use('/api/user', require('./routes/users'));
+app.use('/api/reviews', require('./routes/reviews'));
+app.use('/api/news', require('./routes/news'));
+
+// Serve Uploaded Images
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+
+module.exports = db;
