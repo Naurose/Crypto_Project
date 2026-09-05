@@ -16,9 +16,15 @@ app.use(express.json());
 // SQLite Database Status
 console.log('Connected to SQLite database (gamevault.db)');
 
-// Basic Route
-app.get('/', (req, res) => {
-    res.send('GameVault API is running...');
+// Serve Frontend Static Files (HTML, CSS, JS)
+app.use(express.static(path.join(__dirname, '../frontend')));
+
+// Serve Uploaded Images
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// API Health Route
+app.get('/api', (req, res) => {
+    res.json({ message: 'GameVault API is running...' });
 });
 
 // Routes
@@ -29,12 +35,6 @@ app.use('/api/orders', require('./routes/orders'));
 app.use('/api/user', require('./routes/users'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/news', require('./routes/news'));
-
-// Serve Frontend Static Files (HTML, CSS, JS)
-app.use(express.static(path.join(__dirname, '../frontend')));
-
-// Serve Uploaded Images
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

@@ -244,6 +244,10 @@ const setupOtpInputGrid = (gridId, onComplete) => {
 };
 
 const newInputHandler = (input, index, inputs, gridId, onComplete) => {
+    input.addEventListener('focus', () => {
+        input.select();
+    });
+
     input.addEventListener('input', (e) => {
         const val = input.value;
         if (val) {
@@ -264,6 +268,10 @@ const newInputHandler = (input, index, inputs, gridId, onComplete) => {
             inputs[index - 1].focus();
             inputs[index - 1].value = '';
             inputs[index - 1].classList.remove('filled');
+        } else if (e.key === 'ArrowLeft' && index > 0) {
+            inputs[index - 1].focus();
+        } else if (e.key === 'ArrowRight' && index < inputs.length - 1) {
+            inputs[index + 1].focus();
         }
     });
 
@@ -447,6 +455,10 @@ window.getOtpValue = getOtpValue;
 window.clearOtpGrid = clearOtpGrid;
 window.startResendTimer = startResendTimer;
 window.stopResendTimer = stopResendTimer;
+window.showToast = showToast;
+window.isAuthenticated = isAuthenticated;
+window.getUser = getUser;
+window.logout = logout;
 window.api = api; // api is global for inline onclicks
 
 document.addEventListener('DOMContentLoaded', updateNavbar);
